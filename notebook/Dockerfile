@@ -1,11 +1,13 @@
-FROM eu.gcr.io/ramadhan/s4g/eo-base:latest
+FROM eu.gcr.io/ramadhan-s4g/eo-base:latest
+
+RUN apt-get upgrade & apt-get update
+
+RUN apt-get install mkcert
 
 RUN code-server \
   --install-extension ms-python.python \
   --install-extension ms-toolsai.jupyter \
-  --install-extension charliermarsh.ruff \
-
-  RUN apt-get install mkcert
+  --install-extension charliermarsh.ruff
 
 WORKDIR /usr/src/app
 
@@ -19,4 +21,4 @@ RUN python3 -m venv .venv && \
 
 EXPOSE 8080
 
-CMD [ "code-server", "--auth", "none", "--host", "0.0.0.0", --port, "8080", "/usr/src/app", "--cert-key", "0.0.0.0.pem" ]
+CMD [ "code-server", "--auth", "none", "--host", "0.0.0.0", "--port", "8080", "/usr/src/app", "--cert-key", "0.0.0.0.pem" ]

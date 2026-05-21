@@ -1,0 +1,8 @@
+jupyterlab
+geopandas
+rasterio
+scikit-learn
+scikit-image
+matplotlib
+ipykernel
+matplotlib

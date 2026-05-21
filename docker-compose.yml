@@ -1,5 +1,11 @@
 services:
   notebook:
    build: notebook
+   ports:
+     - 8080:8080
    volumes:
-     - ./notebook:/usr/src/app
+     - ./notebook:/usr/src/app/notebook
+   develop:
+     watch:
+       - path: ./notebook/requirements.txt
+         action: rebuild
