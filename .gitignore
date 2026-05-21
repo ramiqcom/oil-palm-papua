@@ -1,0 +1,11 @@
+__pycache__
+.venv
+.env
+
+*.tif*
+*.shp*
+*.shx*
+*.dbf*
+*.prj*
+*.cpg*
+*.fix*
