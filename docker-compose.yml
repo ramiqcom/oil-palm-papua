@@ -22,3 +22,9 @@ services:
     volumes_from:
       - base-job
     command: [".venv/bin/python", "-m", "job.tile"]
+
+  model_unet:
+    build: .
+    volumes_from:
+      - base-job
+    command: [".venv/bin/python", "-m", "job.model_unet"]

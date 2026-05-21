@@ -20,6 +20,7 @@ VERSION = "v1_unet"
 REGION_NAME = "papua_selatan"
 INPUT_PREFIX = "/usr/src/app/input"
 
+
 ROI = f"{INPUT_PREFIX}/roi/papua_selatan_oil_palm_bounds.fgb"
 
 YEARS_DATA = [
@@ -44,6 +45,8 @@ PIXEL_WIDTH = int(ORIGINAL_WIDTH / 30)
 SCALES = [3000, 6000, 12000]
 BUFFERS = [0.1, 0.2, 0.3]
 TARGET_SIZE = 128
+FLIPS = [0, 1]
+ROTATIONS = [0, 1, 2, 3]
 
 # output
 OUTPUT_PREFIX = "/usr/src/app/output"
@@ -156,12 +159,36 @@ def grid_to_image(all_grids, index):
             remove(output_label)
             remove(output_image)
             raise Exception(f"Grid no {index + 1} label contain no oil palm")
+        else:
+             with rio.open(output_image) as o:
+                image = o.read()
+                image_profile = o.profile
+
+             with rio.open(output_label) as o:
+                label = o.read()
+                label_profile = o.profile
+
+                for flip in FLIPS:
+                    image_flip = np.flip(image, (1, 2)) if (flip != 0) else image
+                    label_flip = np.flip(label, (1, 2)) if (flip != 0) else label
+
+                    for rot in ROTATIONS:
+                        if  not ((flip == 0) and (rot == 0)):
+                            image_rot = np.rot90(image_flip, rot, (1, 2)) if (rot != 0) else image_flip
+                            label_rot = np.rot90(label_flip, rot, (1, 2)) if (rot != 0) else label_flip
+
+                            with rio.open(f"{IMAGE_PREFIX}/{index + 1}F{flip}R{rot}_IMAGE.tif", "w", **image_profile) as o:
+                                o.write(image_rot)
+
+                            with rio.open(f"{LABEL_PREFIX}/{index + 1}F{flip}R{rot}_LABEL.tif", "w", **label_profile) as o:
+                                o.write(label_rot)
+
 
 
 with ThreadPoolExecutor(MAX_WORKERS) as executor:
     jobs = [
         executor.submit(grid_to_image, all_grids, index)
-        for index in range(len(all_grids))
+        for index in range(len(all_grids)) if index >= 570
     ]
     for job in jobs:
         try:
