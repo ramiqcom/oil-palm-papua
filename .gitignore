@@ -9,3 +9,5 @@ __pycache__
 *.prj*
 *.cpg*
 *.fix*
+
+*.fgb*

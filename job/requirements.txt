@@ -1,0 +1,6 @@
+rasterio
+geopandas
+scikit-learn
+pystac-client
+keras
+tensorflow

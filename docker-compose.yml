@@ -1,4 +1,11 @@
 services:
+  base-job:
+    build: .
+    volumes:
+      - ./job/:/usr/src/app/job
+      - ./output:/usr/src/app/output
+      - ./input:/usr/src/app/input
+
   notebook:
    build: notebook
    ports:
@@ -9,3 +16,9 @@ services:
      watch:
        - path: ./notebook/requirements.txt
          action: rebuild
+
+  tile:
+    build: .
+    volumes_from:
+      - base-job
+    command: [".venv/bin/python", "-m", "job.tile"]
