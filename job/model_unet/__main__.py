@@ -49,7 +49,7 @@ IMAGE_SIZE = 128
 BANDS_COUNT = 3
 
 # modelling parameter
-NEURONS = 32
+NEURONS = 8
 KERNEL = 3
 PADDING = "same"
 WEIGHT_DECAY = 1e-1
