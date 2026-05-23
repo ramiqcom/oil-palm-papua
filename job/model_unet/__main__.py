@@ -58,7 +58,7 @@ VALIDATION_SPLIT = 0.5
 MAX_POOL = 2
 BATCH_SIZE = 64
 EPOCHS = 100
-LEARNING_RATE = 1e-3
+LEARNING_RATE = 1e-4
 MODEL_NAME = f"unet_chm_v1_{IMAGE_SIZE}x{IMAGE_SIZE}_sampleCount{SAMPLE_COUNT}_{str(round(datetime.now().timestamp()))}"
 AUTOTUNE = tf.data.AUTOTUNE
 
