@@ -42,8 +42,8 @@ PIXEL_HEIGHT = int(ORIGINAL_HEIGHT / 30)
 PIXEL_WIDTH = int(ORIGINAL_WIDTH / 30)
 
 # in meter
-SCALES = [3000, 6000, 12000]
-BUFFERS = [0.1, 0.2, 0.3]
+SCALES = [3840]
+BUFFERS = [0]
 TARGET_SIZE = 128
 FLIPS = [0, 1]
 ROTATIONS = [0, 1, 2, 3]
@@ -190,7 +190,7 @@ def grid_to_image(all_grids, index):
 with ThreadPoolExecutor(MAX_WORKERS) as executor:
     jobs = [
         executor.submit(grid_to_image, all_grids, index)
-        for index in range(len(all_grids)) if index >= 570
+        for index in range(len(all_grids))
     ]
     for job in jobs:
         try:

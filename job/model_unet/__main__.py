@@ -43,16 +43,16 @@ OUTPUT_PATH = "/usr/src/app/output"
 
 # Sampling parameter
 RANDOM_STATE = 1
-SAMPLE_COUNT = 2000
+SAMPLE_COUNT = 1072
 TEST_RATIO = 0.2
 IMAGE_SIZE = 128
 BANDS_COUNT = 3
 
 # modelling parameter
-NEURONS = 8
+NEURONS = 32
 KERNEL = 3
 PADDING = "same"
-DROPOUT = 0.6
+DROPOUT = 0.4
 VALIDATION_SPLIT = 0.5
 MAX_POOL = 2
 BATCH_SIZE = 64
@@ -266,8 +266,8 @@ def main():
     test_dataset = (
         tf.data.Dataset.from_tensor_slices((test_images_path, test_labels_path))
         .map(tf_dataset_wrapper, num_parallel_calls=AUTOTUNE)
-        .batch(BATCH_SIZE)
         .prefetch(AUTOTUNE)
+        .batch(BATCH_SIZE)
     )
 
     # Train model
@@ -287,13 +287,12 @@ def main():
 
     # Predict test
     logger.info("Predict test data")
-    test_images_predicted = model.predict(test_dataset, batch_size=BATCH_SIZE)[:, :, 0]
-    test_images_predicted = np.round(test_images_predicted)
+    test_images_predicted = model.predict(test_dataset, batch_size=BATCH_SIZE)
+    test_images_predicted = np.round(test_images_predicted).flatten()
 
     # Get flatten version of the label
-    label_true = np.stack([label for (_, label) in test_dataset.as_numpy_iterator()])[
-        :, :, 0
-    ]
+    label_true = [label for (_, label) in test_dataset.as_numpy_iterator()]
+    label_true = np.concat(label_true, 0).flatten()
 
     # Compares test labels and prediction
     logger.info("Assess model")
