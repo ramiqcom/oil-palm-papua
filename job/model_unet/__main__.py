@@ -52,12 +52,13 @@ BANDS_COUNT = 3
 NEURONS = 32
 KERNEL = 3
 PADDING = "same"
+WEIGHT_DECAY = 1e-1
 DROPOUT = 0.4
 VALIDATION_SPLIT = 0.5
 MAX_POOL = 2
 BATCH_SIZE = 64
 EPOCHS = 100
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 1e-3
 MODEL_NAME = f"unet_chm_v1_{IMAGE_SIZE}x{IMAGE_SIZE}_sampleCount{SAMPLE_COUNT}_{str(round(datetime.now().timestamp()))}"
 AUTOTUNE = tf.data.AUTOTUNE
 
@@ -95,7 +96,7 @@ def prepare_sample():
 
     # get random image
     logger.info(f"Get random {SAMPLE_COUNT} sample")
-    paths = pd.Series(paths).sample(SAMPLE_COUNT, random_state=RANDOM_STATE).to_list()
+    # paths = pd.Series(paths).sample(SAMPLE_COUNT, random_state=RANDOM_STATE).to_list()
     ids = [get_id(path) for path in paths]
 
     # split id to train and test
@@ -215,7 +216,7 @@ def unet_model(train_dataset, validation_dataset):
     model = Model(input, output)
     model.summary()
     model.compile(
-        optimizer=Adam(learning_rate=LEARNING_RATE),
+        optimizer=Adam(learning_rate=LEARNING_RATE, weight_decay=WEIGHT_DECAY),
         loss=BinaryCrossentropy(),
         metrics=[
             BinaryAccuracy(),
@@ -223,7 +224,7 @@ def unet_model(train_dataset, validation_dataset):
         ],
     )
 
-    callbacks = [EarlyStopping(patience=5, monitor="binary_io_u")]
+    callbacks = [EarlyStopping(patience=3, monitor="binary_io_u")]
 
     model.fit(
         train_dataset,
