@@ -43,18 +43,16 @@ OUTPUT_PATH = "/usr/src/app/output"
 
 # Sampling parameter
 RANDOM_STATE = 1
-SAMPLE_COUNT = 500
+SAMPLE_COUNT = 2000
 TEST_RATIO = 0.2
 IMAGE_SIZE = 128
 BANDS_COUNT = 3
-FLIPS = [0, 1]
-ROTATIONS = [0, 1, 2, 3]
 
 # modelling parameter
-NEURONS = 32
+NEURONS = 8
 KERNEL = 3
 PADDING = "same"
-DROPOUT = 0.4
+DROPOUT = 0.6
 VALIDATION_SPLIT = 0.5
 MAX_POOL = 2
 BATCH_SIZE = 64
@@ -289,19 +287,18 @@ def main():
 
     # Predict test
     logger.info("Predict test data")
-    test_images_predicted = model.predict(test_dataset, batch_size=BATCH_SIZE)
-    logger.info(test_images_predicted)
-    # [:, :, 0]
+    test_images_predicted = model.predict(test_dataset, batch_size=BATCH_SIZE)[:, :, 0]
+    test_images_predicted = np.round(test_images_predicted)
 
-    # # Get flatten version of the label
-    # label_true = np.stack([label for (_, label) in test_dataset.as_numpy_iterator()])[
-    #     :, :, 0
-    # ]
+    # Get flatten version of the label
+    label_true = np.stack([label for (_, label) in test_dataset.as_numpy_iterator()])[
+        :, :, 0
+    ]
 
-    # # Compares test labels and prediction
-    # logger.info("Assess model")
-    # report = classification_report(label_true, test_images_predicted)
-    # logger.info(report)
+    # Compares test labels and prediction
+    logger.info("Assess model")
+    report = classification_report(label_true, test_images_predicted)
+    logger.info(report)
 
 
 if __name__ == "__main__":

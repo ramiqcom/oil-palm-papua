@@ -163,10 +163,13 @@ def grid_to_image(all_grids, index):
              with rio.open(output_image) as o:
                 image = o.read()
                 image_profile = o.profile
+                image_profile["driver"] = "COG"
 
              with rio.open(output_label) as o:
                 label = o.read()
                 label_profile = o.profile
+                label_profile["driver"] = "COG"
+
 
                 for flip in FLIPS:
                     image_flip = np.flip(image, (1, 2)) if (flip != 0) else image
@@ -182,7 +185,6 @@ def grid_to_image(all_grids, index):
 
                             with rio.open(f"{LABEL_PREFIX}/{index + 1}F{flip}R{rot}_LABEL.tif", "w", **label_profile) as o:
                                 o.write(label_rot)
-
 
 
 with ThreadPoolExecutor(MAX_WORKERS) as executor:
