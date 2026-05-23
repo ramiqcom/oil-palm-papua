@@ -172,8 +172,8 @@ def grid_to_image(all_grids, index):
 
 
                 for flip in FLIPS:
-                    image_flip = np.flip(image, (1, 2)) if (flip != 0) else image
-                    label_flip = np.flip(label, (1, 2)) if (flip != 0) else label
+                    image_flip = np.flip(image, 2) if (flip != 0) else image
+                    label_flip = np.flip(label, 2) if (flip != 0) else label
 
                     for rot in ROTATIONS:
                         if  not ((flip == 0) and (rot == 0)):
