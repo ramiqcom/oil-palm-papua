@@ -52,7 +52,7 @@ BANDS_COUNT = 3
 NEURONS = 8
 KERNEL = 3
 PADDING = "same"
-WEIGHT_DECAY = 1e-1
+WEIGHT_DECAY = 1e-4
 DROPOUT = 0.4
 VALIDATION_SPLIT = 0.5
 MAX_POOL = 2
@@ -168,20 +168,20 @@ def dual_conv2_block(neuron, input):
         padding=PADDING,
         activation="relu",
     )(input)
+    dropout = Dropout(DROPOUT)(conv1)
     conv2 = Conv2D(
         neuron,
         kernel_size=KERNEL,
         padding=PADDING,
         activation="relu",
-    )(conv1)
+    )(dropout)
     return conv2
 
 
 def encode_block(neuron, input):
     dual_conv = dual_conv2_block(neuron, input)
     max_pool = MaxPool2D(MAX_POOL)(dual_conv)
-    dropout = Dropout(DROPOUT)(max_pool)
-    return dropout, dual_conv
+    return max_pool, dual_conv
 
 
 def decode_block(neuron, input, pair):
@@ -224,7 +224,7 @@ def unet_model(train_dataset, validation_dataset):
         ],
     )
 
-    callbacks = [EarlyStopping(patience=3, monitor="binary_io_u")]
+    callbacks = [EarlyStopping(patience=5, monitor="val_binary_io_u", mode="max", restore_best_weights=True)]
 
     model.fit(
         train_dataset,
