@@ -25,7 +25,7 @@ from keras.optimizers import Adam
 from rasterio.enums import Resampling
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, cohen_kappa_score
 
 from job.utils import MAX_WORKERS, logger
 
@@ -279,11 +279,6 @@ def main():
     saved_model_path = f"{OUTPUT_PATH}/{MODEL_NAME}.keras"
     model.save(saved_model_path)
 
-    # Save parameter of the model
-    model_param_path = f"{OUTPUT_PATH}/{MODEL_NAME}.json"
-    with open(model_param_path, "w") as file:
-        json.dump(model_param_json, file)
-
     model = load_model(saved_model_path)
 
     # Predict test
@@ -297,8 +292,22 @@ def main():
 
     # Compares test labels and prediction
     logger.info("Assess model")
+    accuracy = accuracy_score(label_true, test_images_predicted)
+    kappa = cohen_kappa_score(label_true, test_images_predicted)
     report = classification_report(label_true, test_images_predicted)
     logger.info(report)
+    logger.info(f"Accuracy: {accuracy}")
+    logger.info(f"Kappa: {kappa}")
+
+    # Save parameter of the model
+    model_param_json["METRICS"] = {
+        "ACCURACY": accuracy,
+        "KAPPA": kappa
+    }
+    model_param_path = f"{OUTPUT_PATH}/{MODEL_NAME}.json"
+    with open(model_param_path, "w") as file:
+        json.dump(model_param_json, file)
+
 
 
 if __name__ == "__main__":
