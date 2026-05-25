@@ -21,7 +21,16 @@ from keras.metrics import BinaryAccuracy, BinaryIoU
 from keras.models import load_model
 from keras.optimizers import Adam
 from rasterio.enums import Resampling
-from sklearn.metrics import accuracy_score, classification_report, cohen_kappa_score
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    cohen_kappa_score,
+    f1_score,
+    jaccard_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 from sklearn.model_selection import train_test_split
 
 from job.utils import MAX_WORKERS, logger
@@ -46,14 +55,14 @@ IMAGE_SIZE = 128
 BANDS_COUNT = 3
 
 # modelling parameter
-NEURONS = 32
+NEURONS = 16
 KERNEL = 3
 PADDING = "same"
-WEIGHT_DECAY = 1e-2
+WEIGHT_DECAY = 1e-3
 DROPOUT = 0.4
 VALIDATION_SPLIT = 0.5
 MAX_POOL = 2
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 EPOCHS = 100
 LEARNING_RATE = 1e-4
 MODEL_NAME = f"unet_chm_v1_{IMAGE_SIZE}x{IMAGE_SIZE}_sampleCount{SAMPLE_COUNT}_{str(round(datetime.now().timestamp()))}"
@@ -217,12 +226,15 @@ def unet_model(train_dataset, validation_dataset):
     model.compile(
         optimizer=Adam(learning_rate=LEARNING_RATE, weight_decay=WEIGHT_DECAY),
         loss=BinaryCrossentropy(),
-        metrics=[BinaryAccuracy(), BinaryIoU()],
+        metrics=[
+            BinaryAccuracy(),
+            BinaryIoU(),
+        ],
     )
 
     callbacks = [
         EarlyStopping(
-            patience=5, monitor="val_loss", mode="min", restore_best_weights=True
+            patience=5, monitor="val_binary_io_u", mode="max", restore_best_weights=True
         )
     ]
 
@@ -231,6 +243,8 @@ def unet_model(train_dataset, validation_dataset):
         epochs=EPOCHS,
         callbacks=callbacks,
         validation_data=validation_dataset,
+        class_weight={0: 1, 1: 10},
+        shuffle=True,
     )
 
     return model
@@ -252,7 +266,6 @@ def main():
     train_dataset = (
         tf.data.Dataset.from_tensor_slices((train_images_path, train_labels_path))
         .map(tf_dataset_wrapper, num_parallel_calls=AUTOTUNE)
-        .shuffle(buffer_size=SAMPLE_COUNT)
         .batch(BATCH_SIZE)
         .prefetch(AUTOTUNE)
     )
@@ -295,12 +308,30 @@ def main():
     accuracy = accuracy_score(label_true, test_images_predicted)
     kappa = cohen_kappa_score(label_true, test_images_predicted)
     report = classification_report(label_true, test_images_predicted)
+    recall = recall_score(label_true, test_images_predicted)
+    precision = precision_score(label_true, test_images_predicted)
+    f1 = f1_score(label_true, test_images_predicted)
+    auc = roc_auc_score(label_true, test_images_predicted)
+    iou = jaccard_score(label_true, test_images_predicted)
     logger.info(report)
     logger.info(f"Accuracy: {accuracy}")
     logger.info(f"Kappa: {kappa}")
+    logger.info(f"Recall: {recall}")
+    logger.info(f"Precision: {precision}")
+    logger.info(f"F1: {f1}")
+    logger.info(f"AUC: {auc}")
+    logger.info(f"IOU: {iou}")
 
     # Save parameter of the model
-    model_param_json["METRICS"] = {"ACCURACY": accuracy, "KAPPA": kappa}
+    model_param_json["METRICS"] = {
+        "ACCURACY": accuracy,
+        "KAPPA": kappa,
+        "RECALL": recall,
+        "PRECISION": precision,
+        "F1": f1,
+        "AUC": auc,
+        "IOU": iou,
+    }
     model_param_path = f"{OUTPUT_PATH}/{MODEL_NAME}.json"
     with open(model_param_path, "w") as file:
         json.dump(model_param_json, file)
