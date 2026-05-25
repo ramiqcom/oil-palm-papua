@@ -233,7 +233,9 @@ def unet_model(train_dataset, validation_dataset):
 
     callbacks = [
         EarlyStopping(
-            patience=5, monitor="binary_io_u", mode="max", restore_best_weights=True
+            patience=5,
+            monitor="binary_io_u",
+            mode="max",
         )
     ]
 
