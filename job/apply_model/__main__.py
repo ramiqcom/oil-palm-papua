@@ -10,7 +10,7 @@ PROCESS_COUNT = int(MAX_WORKERS / CPU_PER_PROCESS)
 
 INPUT_PREFIX = "/usr/src/app/input"
 OUTPUT_PREFIX = "/usr/src/app/output"
-MODEL_NAME = "unet_chm_v1_128x128_sampleCount6472_1779711365"
+MODEL_NAME = "unet_chm_v1_128x128_sampleCount6472_1779734720"
 MODEL_PATH = f"{OUTPUT_PREFIX}/{MODEL_NAME}.keras"
 PREDICTION_PATH = f"{OUTPUT_PREFIX}/prediction_oil_palm_{MODEL_NAME}.tif"
 REGION_NAME = "papua_selatan"

@@ -17,7 +17,7 @@ from keras.layers import (
     MaxPool2D,
 )
 from keras.losses import BinaryCrossentropy
-from keras.metrics import BinaryAccuracy, BinaryIoU
+from keras.metrics import BinaryIoU
 from keras.models import load_model
 from keras.optimizers import Adam
 from rasterio.enums import Resampling
@@ -55,16 +55,16 @@ IMAGE_SIZE = 128
 BANDS_COUNT = 3
 
 # modelling parameter
-NEURONS = 16
+NEURONS = 32
 KERNEL = 3
 PADDING = "same"
-WEIGHT_DECAY = 1e-3
+WEIGHT_DECAY = 1e-4
 DROPOUT = 0.4
 VALIDATION_SPLIT = 0.5
 MAX_POOL = 2
 BATCH_SIZE = 128
 EPOCHS = 100
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 1e-3
 MODEL_NAME = f"unet_chm_v1_{IMAGE_SIZE}x{IMAGE_SIZE}_sampleCount{SAMPLE_COUNT}_{str(round(datetime.now().timestamp()))}"
 AUTOTUNE = tf.data.AUTOTUNE
 
@@ -227,14 +227,13 @@ def unet_model(train_dataset, validation_dataset):
         optimizer=Adam(learning_rate=LEARNING_RATE, weight_decay=WEIGHT_DECAY),
         loss=BinaryCrossentropy(),
         metrics=[
-            BinaryAccuracy(),
             BinaryIoU(),
         ],
     )
 
     callbacks = [
         EarlyStopping(
-            patience=5, monitor="val_binary_io_u", mode="max", restore_best_weights=True
+            patience=5, monitor="binary_io_u", mode="max", restore_best_weights=True
         )
     ]
 
