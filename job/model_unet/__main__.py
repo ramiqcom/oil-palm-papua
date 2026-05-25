@@ -64,7 +64,7 @@ VALIDATION_SPLIT = 0.5
 MAX_POOL = 2
 BATCH_SIZE = 128
 EPOCHS = 100
-LEARNING_RATE = 1e-3
+LEARNING_RATE = 1e-4
 MODEL_NAME = f"unet_chm_v1_{IMAGE_SIZE}x{IMAGE_SIZE}_sampleCount{SAMPLE_COUNT}_{str(round(datetime.now().timestamp()))}"
 AUTOTUNE = tf.data.AUTOTUNE
 
@@ -244,7 +244,7 @@ def unet_model(train_dataset, validation_dataset):
         epochs=EPOCHS,
         callbacks=callbacks,
         validation_data=validation_dataset,
-        class_weight={0: 1, 1: 10},
+        class_weight={0: 1, 1: 5},
         shuffle=True,
     )
 
