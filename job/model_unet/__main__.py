@@ -58,13 +58,13 @@ BANDS_COUNT = 3
 NEURONS = 32
 KERNEL = 3
 PADDING = "same"
-WEIGHT_DECAY = 1e-4
+# WEIGHT_DECAY = 1e-4
 DROPOUT = 0.4
 VALIDATION_SPLIT = 0.5
 MAX_POOL = 2
 BATCH_SIZE = 128
 EPOCHS = 100
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 1e-3
 MODEL_NAME = f"unet_chm_v1_{IMAGE_SIZE}x{IMAGE_SIZE}_sampleCount{SAMPLE_COUNT}_{str(round(datetime.now().timestamp()))}"
 AUTOTUNE = tf.data.AUTOTUNE
 
@@ -88,7 +88,7 @@ model_param_json = dict(
         EPOCHS=EPOCHS,
         MODEL_NAME=MODEL_NAME,
         LEARNING_RATE=LEARNING_RATE,
-        WEIGHT_DECAY=WEIGHT_DECAY,
+        # WEIGHT_DECAY=WEIGHT_DECAY,
     ),
 )
 
@@ -224,7 +224,7 @@ def unet_model(train_dataset, validation_dataset):
     model = Model(input, output)
     model.summary()
     model.compile(
-        optimizer=Adam(learning_rate=LEARNING_RATE, weight_decay=WEIGHT_DECAY),
+        optimizer=Adam(learning_rate=LEARNING_RATE),
         loss=BinaryCrossentropy(),
         metrics=[
             BinaryIoU(),
@@ -234,8 +234,8 @@ def unet_model(train_dataset, validation_dataset):
     callbacks = [
         EarlyStopping(
             patience=5,
-            monitor="binary_io_u",
-            mode="max",
+            monitor="loss",
+            mode="min",
         )
     ]
 
