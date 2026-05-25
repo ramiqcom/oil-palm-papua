@@ -37,13 +37,16 @@ with rio.open(YEARS_DATA[0]["ms_path"]) as src:
     nir, swir1, swir2 = src.read(
         [4, 5, 6], out_shape=(prediction_shape, prediction_shape)
     )
-    composite = np.dstack(
-        [
-            rescale(nir, (1000, 4000)),
-            rescale(swir1, (500, 3000)),
-            rescale(swir2, (250, 2000)),
-        ]
-    )
+    composite = (
+        np.dstack(
+            [
+                rescale(nir, (1000, 4000)) * 255,
+                rescale(swir1, (500, 3000)) * 255,
+                rescale(swir2, (250, 2000)) * 255,
+            ]
+        ).astype("uint8")
+        / 255
+    ).astype("float32")
 
     batch = np.stack([composite])
 
