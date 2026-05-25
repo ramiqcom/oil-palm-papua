@@ -42,7 +42,7 @@ PIXEL_HEIGHT = int(ORIGINAL_HEIGHT / 30)
 PIXEL_WIDTH = int(ORIGINAL_WIDTH / 30)
 
 # in meter
-SCALES = [int(3840 / 2), 3840, 3840 * 2]
+SCALES = [3840]
 BUFFERS = [0]
 TARGET_SIZE = 128
 FLIPS = [0, 1]
@@ -154,53 +154,49 @@ def grid_to_image(all_grids, index):
         shell=True,
     )
 
+    # with rio.open(output_label) as o:
+    #     image = o.read(1)
+    #     if np.sum((image == 1) * 1) < 1:
+    #         remove(output_label)
+    #         remove(output_image)
+    #         raise Exception(f"Grid no {index + 1} label contain no oil palm")
+    #     else:
+    with rio.open(output_image) as o:
+        image = o.read()
+        image_profile = o.profile
+        image_profile["driver"] = "COG"
+
     with rio.open(output_label) as o:
-        image = o.read(1)
-        if np.sum((image == 1) * 1) < 1:
-            remove(output_label)
-            remove(output_image)
-            raise Exception(f"Grid no {index + 1} label contain no oil palm")
-        else:
-            with rio.open(output_image) as o:
-                image = o.read()
-                image_profile = o.profile
-                image_profile["driver"] = "COG"
+        label = o.read()
+        label_profile = o.profile
+        label_profile["driver"] = "COG"
 
-            with rio.open(output_label) as o:
-                label = o.read()
-                label_profile = o.profile
-                label_profile["driver"] = "COG"
+        for flip in FLIPS:
+            image_flip = np.flip(image, 2) if (flip != 0) else image
+            label_flip = np.flip(label, 2) if (flip != 0) else label
 
-                for flip in FLIPS:
-                    image_flip = np.flip(image, 2) if (flip != 0) else image
-                    label_flip = np.flip(label, 2) if (flip != 0) else label
+            for rot in ROTATIONS:
+                if not ((flip == 0) and (rot == 0)):
+                    image_rot = (
+                        np.rot90(image_flip, rot, (1, 2)) if (rot != 0) else image_flip
+                    )
+                    label_rot = (
+                        np.rot90(label_flip, rot, (1, 2)) if (rot != 0) else label_flip
+                    )
 
-                    for rot in ROTATIONS:
-                        if not ((flip == 0) and (rot == 0)):
-                            image_rot = (
-                                np.rot90(image_flip, rot, (1, 2))
-                                if (rot != 0)
-                                else image_flip
-                            )
-                            label_rot = (
-                                np.rot90(label_flip, rot, (1, 2))
-                                if (rot != 0)
-                                else label_flip
-                            )
+                    with rio.open(
+                        f"{IMAGE_PREFIX}/{index + 1}F{flip}R{rot}_IMAGE.tif",
+                        "w",
+                        **image_profile,
+                    ) as o:
+                        o.write(image_rot)
 
-                            with rio.open(
-                                f"{IMAGE_PREFIX}/{index + 1}F{flip}R{rot}_IMAGE.tif",
-                                "w",
-                                **image_profile,
-                            ) as o:
-                                o.write(image_rot)
-
-                            with rio.open(
-                                f"{LABEL_PREFIX}/{index + 1}F{flip}R{rot}_LABEL.tif",
-                                "w",
-                                **label_profile,
-                            ) as o:
-                                o.write(label_rot)
+                    with rio.open(
+                        f"{LABEL_PREFIX}/{index + 1}F{flip}R{rot}_LABEL.tif",
+                        "w",
+                        **label_profile,
+                    ) as o:
+                        o.write(label_rot)
 
 
 with ThreadPoolExecutor(MAX_WORKERS) as executor:

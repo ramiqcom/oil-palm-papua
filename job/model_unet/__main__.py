@@ -49,7 +49,7 @@ BANDS_COUNT = 3
 NEURONS = 32
 KERNEL = 3
 PADDING = "same"
-WEIGHT_DECAY = 1e-3
+WEIGHT_DECAY = 1e-2
 DROPOUT = 0.4
 VALIDATION_SPLIT = 0.5
 MAX_POOL = 2
@@ -231,7 +231,6 @@ def unet_model(train_dataset, validation_dataset):
         epochs=EPOCHS,
         callbacks=callbacks,
         validation_data=validation_dataset,
-        shuffle=True,
     )
 
     return model
@@ -253,6 +252,7 @@ def main():
     train_dataset = (
         tf.data.Dataset.from_tensor_slices((train_images_path, train_labels_path))
         .map(tf_dataset_wrapper, num_parallel_calls=AUTOTUNE)
+        .shuffle(buffer_size=SAMPLE_COUNT)
         .batch(BATCH_SIZE)
         .prefetch(AUTOTUNE)
     )
@@ -264,7 +264,6 @@ def main():
         .batch(BATCH_SIZE)
         .prefetch(AUTOTUNE)
     )
-
     test_dataset = (
         tf.data.Dataset.from_tensor_slices((test_images_path, test_labels_path))
         .map(tf_dataset_wrapper, num_parallel_calls=AUTOTUNE)
