@@ -2,10 +2,8 @@ import json
 import logging
 from datetime import datetime
 from os import listdir
-from subprocess import check_call
 
 import numpy as np
-import pandas as pd
 import rasterio as rio
 import tensorflow as tf
 from keras import Model
@@ -19,13 +17,12 @@ from keras.layers import (
     MaxPool2D,
 )
 from keras.losses import BinaryCrossentropy
-from keras.metrics import BinaryIoU, BinaryAccuracy
+from keras.metrics import BinaryAccuracy, BinaryIoU
 from keras.models import load_model
 from keras.optimizers import Adam
 from rasterio.enums import Resampling
-from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.metrics import accuracy_score, classification_report, cohen_kappa_score
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, cohen_kappa_score
 
 from job.utils import MAX_WORKERS, logger
 
@@ -43,8 +40,8 @@ OUTPUT_PATH = "/usr/src/app/output"
 
 # Sampling parameter
 RANDOM_STATE = 1
-SAMPLE_COUNT = 1072
-TEST_RATIO = 0.2
+SAMPLE_COUNT = 6472
+TEST_RATIO = 0.25
 IMAGE_SIZE = 128
 BANDS_COUNT = 3
 
@@ -52,7 +49,7 @@ BANDS_COUNT = 3
 NEURONS = 32
 KERNEL = 3
 PADDING = "same"
-WEIGHT_DECAY = 1e-1
+WEIGHT_DECAY = 1e-3
 DROPOUT = 0.4
 VALIDATION_SPLIT = 0.5
 MAX_POOL = 2
@@ -82,6 +79,7 @@ model_param_json = dict(
         EPOCHS=EPOCHS,
         MODEL_NAME=MODEL_NAME,
         LEARNING_RATE=LEARNING_RATE,
+        WEIGHT_DECAY=WEIGHT_DECAY,
     ),
 )
 
@@ -127,7 +125,7 @@ def load_image_tf_dataset(image_path, label_path):
     image_path = image_path.numpy().decode("utf-8")
     label_path = label_path.numpy().decode("utf-8")
 
-    with rio.open(image_path, **{"IGNORE_COG_LAYOUT_BREAK": True }) as src:
+    with rio.open(image_path, **{"IGNORE_COG_LAYOUT_BREAK": True}) as src:
         image = (
             src.read(
                 out_shape=(IMAGE_SIZE, IMAGE_SIZE),
@@ -137,7 +135,7 @@ def load_image_tf_dataset(image_path, label_path):
             / 255
         )
 
-    with rio.open(label_path, **{"IGNORE_COG_LAYOUT_BREAK": True }) as src:
+    with rio.open(label_path, **{"IGNORE_COG_LAYOUT_BREAK": True}) as src:
         label = src.read(
             [1],
             out_shape=(IMAGE_SIZE, IMAGE_SIZE),
@@ -160,6 +158,7 @@ def tf_dataset_wrapper(image_path, label_path):
     lbl.set_shape([IMAGE_SIZE, IMAGE_SIZE, 1])
 
     return img, lbl
+
 
 def dual_conv2_block(neuron, input):
     conv1 = Conv2D(
@@ -218,19 +217,21 @@ def unet_model(train_dataset, validation_dataset):
     model.compile(
         optimizer=Adam(learning_rate=LEARNING_RATE, weight_decay=WEIGHT_DECAY),
         loss=BinaryCrossentropy(),
-        metrics=[
-            BinaryAccuracy(),
-            BinaryIoU()
-        ],
+        metrics=[BinaryAccuracy(), BinaryIoU()],
     )
 
-    callbacks = [EarlyStopping(patience=5, monitor="val_loss", mode="min", restore_best_weights=True)]
+    callbacks = [
+        EarlyStopping(
+            patience=5, monitor="val_loss", mode="min", restore_best_weights=True
+        )
+    ]
 
     model.fit(
         train_dataset,
         epochs=EPOCHS,
         callbacks=callbacks,
         validation_data=validation_dataset,
+        shuffle=True,
     )
 
     return model
@@ -300,14 +301,10 @@ def main():
     logger.info(f"Kappa: {kappa}")
 
     # Save parameter of the model
-    model_param_json["METRICS"] = {
-        "ACCURACY": accuracy,
-        "KAPPA": kappa
-    }
+    model_param_json["METRICS"] = {"ACCURACY": accuracy, "KAPPA": kappa}
     model_param_path = f"{OUTPUT_PATH}/{MODEL_NAME}.json"
     with open(model_param_path, "w") as file:
         json.dump(model_param_json, file)
-
 
 
 if __name__ == "__main__":

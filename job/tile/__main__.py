@@ -27,7 +27,7 @@ YEARS_DATA = [
     dict(
         year=2020,
         ms_path=f"{INPUT_PREFIX}/glad_ard/papua_selatan_oil_palm_GLAD_ARD_2020-01-01_2020-12-31_30m.tif",
-        label=f"{INPUT_PREFIX}/label/sample_raster.tif"
+        label=f"{INPUT_PREFIX}/label/sample_raster.tif",
     ),
 ]
 
@@ -42,7 +42,7 @@ PIXEL_HEIGHT = int(ORIGINAL_HEIGHT / 30)
 PIXEL_WIDTH = int(ORIGINAL_WIDTH / 30)
 
 # in meter
-SCALES = [3840, round(3840*1.5), 3840*2]
+SCALES = [int(3840 / 2), 3840, 3840 * 2]
 BUFFERS = [0]
 TARGET_SIZE = 128
 FLIPS = [0, 1]
@@ -100,6 +100,7 @@ for scale in SCALES:
 all_grids = gpd.GeoDataFrame(all_grids, crs="EPSG:4326")
 grids_output = f"{OUTPUT_PREFIX}/grids.geojson"
 all_grids.to_file(grids_output)
+
 
 def grid_to_image(all_grids, index):
     logger.info(f"Run grid {index + 1}")
@@ -160,30 +161,45 @@ def grid_to_image(all_grids, index):
             remove(output_image)
             raise Exception(f"Grid no {index + 1} label contain no oil palm")
         else:
-             with rio.open(output_image) as o:
+            with rio.open(output_image) as o:
                 image = o.read()
                 image_profile = o.profile
                 image_profile["driver"] = "COG"
 
-             with rio.open(output_label) as o:
+            with rio.open(output_label) as o:
                 label = o.read()
                 label_profile = o.profile
                 label_profile["driver"] = "COG"
-
 
                 for flip in FLIPS:
                     image_flip = np.flip(image, 2) if (flip != 0) else image
                     label_flip = np.flip(label, 2) if (flip != 0) else label
 
                     for rot in ROTATIONS:
-                        if  not ((flip == 0) and (rot == 0)):
-                            image_rot = np.rot90(image_flip, rot, (1, 2)) if (rot != 0) else image_flip
-                            label_rot = np.rot90(label_flip, rot, (1, 2)) if (rot != 0) else label_flip
+                        if not ((flip == 0) and (rot == 0)):
+                            image_rot = (
+                                np.rot90(image_flip, rot, (1, 2))
+                                if (rot != 0)
+                                else image_flip
+                            )
+                            label_rot = (
+                                np.rot90(label_flip, rot, (1, 2))
+                                if (rot != 0)
+                                else label_flip
+                            )
 
-                            with rio.open(f"{IMAGE_PREFIX}/{index + 1}F{flip}R{rot}_IMAGE.tif", "w", **image_profile) as o:
+                            with rio.open(
+                                f"{IMAGE_PREFIX}/{index + 1}F{flip}R{rot}_IMAGE.tif",
+                                "w",
+                                **image_profile,
+                            ) as o:
                                 o.write(image_rot)
 
-                            with rio.open(f"{LABEL_PREFIX}/{index + 1}F{flip}R{rot}_LABEL.tif", "w", **label_profile) as o:
+                            with rio.open(
+                                f"{LABEL_PREFIX}/{index + 1}F{flip}R{rot}_LABEL.tif",
+                                "w",
+                                **label_profile,
+                            ) as o:
                                 o.write(label_rot)
 
 
