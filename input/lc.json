@@ -1,0 +1,135 @@
+{
+  "palette": [
+    "006400",
+    "228B22",
+    "4B0082",
+    "808000",
+    "32CD32",
+    "90EE90",
+    "FF4500",
+    "F08080",
+    "D2B48C",
+    "ADFF2F",
+    "87CEFA",
+    "6A5ACD",
+    "6B8E23",
+    "66CDAA",
+    "FFD700",
+    "FFA500",
+    "008080",
+    "E6E6FA",
+    "B22222",
+    "C71585",
+    "A0522D",
+    "7FFFD4"
+  ],
+  "values": [
+    2001, 2002, 2004, 2005, 2006, 2007, 2010, 2012, 2014, 3000, 5001, 20041,
+    20051, 20071, 20091, 20092, 20093, 20094, 20121, 20122, 20141, 50011
+  ],
+  "values_byte": [
+    11, 12, 21, 31, 41, 51, 42, 61, 71, 52, 81, 22, 32, 52, 91, 92, 93, 82, 62,
+    63, 72, 83
+  ],
+  "label": [
+    "Primary dryland forest",
+    "Secondary dryland forest",
+    "Primary mangrove forest",
+    "Primary swamp forest",
+    "Plantation forest",
+    "Dry shrub",
+    "Estate crop",
+    "Settlement",
+    "Bare ground",
+    "Savanna and grasses",
+    "Open water",
+    "Secondary mangrove forest",
+    "Secondary swamp forest",
+    "Wet shrub",
+    "Pure dry agriculture",
+    "Mixed dry agriculture",
+    "Paddy field",
+    "Fish pond/aquaculture",
+    "Port or harbour",
+    "Transmigration areas",
+    "Mining",
+    "Swamp"
+  ],
+  "agb_mean": [
+    291.24, 204.1, 236.17, 248.8, 75.78, 60.39, 48.1, 2.17, 2.4, 4.06, 0,
+    118.02, 204.61, 19.34, 14.08, 64.64, 10, 0, 0, 14.08, 0, 0
+  ],
+  "agb_vis": { "min": 0, "max": 300 },
+  "bgb_mean": [
+    84.46, 59.19, 73.45, 54.74, 24.63, 14.25, 15.63, 0.63, 0.57, 0.96, 0, 13.57,
+    45.01, 4.56, 2.82, 12.93, 2.36, 0, 0, 2.82, 0, 0
+  ],
+  "bgb_vis": { "min": 0, "max": 100 },
+  "biom_palette": ["lightyellow", "lightgreen", "green", "darkgreen"],
+  "values_rspo": [10, 20, 35, 51, 52, 120, 130, 180, 190, 200, 210],
+  "agb_mean_rspo": [
+    14.08, 75.78, 48.1, 291.24, 204.1, 60.39, 4.06, 248.8, 236.17, 0, 0
+  ],
+  "bgb_mean_rspo": [
+    2.82, 24.63, 15.63, 84.46, 59.19, 14.25, 0.96, 54.74, 73.45, 0, 0
+  ],
+  "labels_rspo": [
+    "Annual crop",
+    "Tree crop",
+    "Oil palm",
+    "Undisturbed primary forest",
+    "Old secondary forest",
+    "Shrubland",
+    "Grassland",
+    "Undisturbed swamp forest",
+    "Undisturbed mangrove forest",
+    "Water bodies",
+    "Other land cover"
+  ],
+  "palette_rspo": [
+    "FFD700",
+    "A0522D",
+    "FF4500",
+    "006400",
+    "228B22",
+    "90EE90",
+    "7CFC00",
+    "4B0082",
+    "808000",
+    "87CEFA",
+    "DCDCDC"
+  ],
+  "klhk_rspo_conversion": [
+    51, 52, 190, 180, 20, 120, 35, 210, 210, 130, 200, 52, 52, 120, 10, 10, 10,
+    200, 210, 210, 210, 200
+  ],
+  "s4g_values_conversion": [
+    10, 10, 20, 30, 40, 50, 45, 60, 70, 50, 80, 20, 30, 55, 50, 50, 55, 80, 60,
+    60, 70, 80
+  ],
+  "s4g_values": [10, 20, 30, 40, 45, 50, 55, 60, 70, 80],
+  "s4g_labels": [
+    "Dryland forest",
+    "Mangrove forest",
+    "Swamp forest",
+    "Plantation forest",
+    "Oil palm",
+    "Dry low level vegetation",
+    "Wet low level vegetation",
+    "Built-up",
+    "Bareland",
+    "Water"
+  ],
+  "s4g_palette": [
+    "006400",
+    "4B0082",
+    "808000",
+    "A0522D",
+    "FF4500",
+    "90EE90",
+    "008080",
+    "F08080",
+    "D2B48C",
+    "87CEFA"
+  ]
+}

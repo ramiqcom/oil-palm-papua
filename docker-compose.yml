@@ -34,3 +34,9 @@ services:
     volumes_from:
       - base-job
     command: [".venv/bin/python", "-m", "job.apply_model"]
+
+  klhk_classification_s4g:
+    build: .
+    volumes_from:
+      - base-job
+    command: [".venv/bin/python", "-m", "job.klhk_classification_s4g"]

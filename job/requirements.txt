@@ -4,3 +4,5 @@ scikit-learn
 pystac-client
 keras
 tensorflow
+pillow
+xgboost
