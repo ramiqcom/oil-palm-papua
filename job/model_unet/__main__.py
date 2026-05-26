@@ -11,6 +11,7 @@ from keras.callbacks import EarlyStopping
 from keras.layers import (
     Concatenate,
     Conv2D,
+
     Conv2DTranspose,
     Dropout,
     Input,
@@ -42,6 +43,7 @@ logging.getLogger("rasterio").setLevel(logging.ERROR)
 logging.getLogger("rasterio._gdal").setLevel(logging.ERROR)
 
 MAX_WORKERS = MAX_WORKERS
+
 
 PREDICTORS_PREFIX = "/usr/src/app/output/tile_images/image"
 LABELS_PREFIX = "/usr/src/app/output/tile_images/label"
